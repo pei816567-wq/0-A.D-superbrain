@@ -1,0 +1,8 @@
+{
+	"name": "superbrain",
+	"version": "0.0.1",
+	"label": "Superbrain Autopilot (dev)",
+	"url": "",
+	"description": "单人对局用的外部 AI 桥接层：导出实时单位状态，注入与玩家点击等价的命令。检测到多人对局自动停用。",
+	"dependencies": ["0ad"]
+}

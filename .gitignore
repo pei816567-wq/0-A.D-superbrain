@@ -1,0 +1,22 @@
+# 参考用的 0 A.D. 源码 / Petra AI 拷贝（引擎本体是 GPL 项目，不随本仓库发布）
+oad-src/
+oad-ai/
+oad_run.log
+
+# 本地临时物、运行数据、可能的密钥落盘处
+tmp/
+out/
+.scratch/
+*.log
+superbrain/app/state/
+superbrain/app/config.json
+superbrain/app/node_modules/
+
+# 技能目录只发布这一份操作手册
+.qoder/*
+!.qoder/skills/
+.qoder/skills/*
+!.qoder/skills/superbrain-console/
+
+__pycache__/
+*.pyc

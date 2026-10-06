@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+	这些键名会被引擎收进热键表，但默认不绑定按键（F5-F8 已被相机跳转占用）。
+	进游戏 → 选项 → 热键 → "Superbrain 副驾" 分类 → 点条目 → 按下你想要的键，绑定会存进 user.cfg。
+	没绑定也不影响使用：副驾默认接管，控制台 sb.mjs takeover off 随时交还。
+-->
+<object>
+	<object hotkey="superbrain.toggle">
+		<action on="Press">superbrainToggle();</action>
+	</object>
+
+	<object hotkey="superbrain.field">
+		<action on="Press">superbrainDoctrine("field");</action>
+	</object>
+
+	<object hotkey="superbrain.hold">
+		<action on="Press">superbrainDoctrine("hold");</action>
+	</object>
+
+	<object hotkey="superbrain.push">
+		<action on="Press">superbrainDoctrine("push");</action>
+	</object>
+
+	<object hotkey="superbrain.harass">
+		<action on="Press">superbrainDoctrine("harass");</action>
+	</object>
+
+	<object hotkey="superbrain.retreat">
+		<action on="Press">superbrainDoctrine("retreat");</action>
+	</object>
+
+	<object hotkey="superbrain.econ">
+		<action on="Press">superbrainEconomy();</action>
+	</object>
+</object>

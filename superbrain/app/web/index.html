@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Superbrain 控制台 · 0 A.D. 副驾</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header>
+	<div class="brand">
+		<span class="logo">SB</span>
+		<div>
+			<b>Superbrain 控制台</b>
+			<small id="subline">等待对局数据</small>
+		</div>
+	</div>
+	<div class="hdr-right">
+		<span id="conn" class="dot"></span><span id="connText">未连接</span>
+		<span id="frameInfo" class="mono dim"></span>
+		<nav id="tabs">
+			<button data-tab="ops" class="on">战场</button>
+			<button data-tab="train">训练</button>
+			<button data-tab="cmd">指令台</button>
+			<button data-tab="set">设置</button>
+		</nav>
+	</div>
+</header>
+
+<main>
+	<!-- -------------------------------------------------- 左：控制 -->
+	<aside id="left">
+		<section class="card">
+			<h3>接管</h3>
+			<div class="bigbtns">
+				<button id="btnAll" class="primary">全部接管</button>
+				<button id="btnNone" class="ghost">全部取消</button>
+				<button id="btnMil" class="toggle">接管军事<small>热键 F9</small></button>
+				<button id="btnEco" class="toggle">接管经济<small>热键 F8</small></button>
+			</div>
+			<label class="row"><span>大模型接管模式</span>
+				<span class="seg"><button id="btnSage" class="toggle sm">战略层交给大模型</button></span>
+			</label>
+			<p class="hint" id="sageHint">模型只做战略决策（打法/经济倾斜/攻击对象），执行仍在游戏内内核。</p>
+		</section>
+
+		<section class="card">
+			<h3>战略旋钮</h3>
+			<label class="row"><span>攻击欲望</span><output id="aggOut" class="mono">—</output></label>
+			<input id="agg" type="range" min="0" max="100" value="55" />
+			<div class="row"><span>攻防模式</span></div>
+			<div class="seg" id="posture">
+				<button data-v="defend">防守</button>
+				<button data-v="balanced" class="on">均势</button>
+				<button data-v="attack">进攻</button>
+			</div>
+			<div class="row"><span>经济模式</span></div>
+			<div class="seg" id="ecoMode">
+				<button data-v="boom">憋经济</button>
+				<button data-v="balanced" class="on">均衡</button>
+				<button data-v="war">暴兵</button>
+			</div>
+			<div class="row"><span>打法</span>
+				<select id="doctrine">
+					<option value="">（不变）</option>
+					<option value="field">field 会战</option>
+					<option value="hold">hold 守家</option>
+					<option value="push">push 压进</option>
+					<option value="harass">harass 骚扰</option>
+					<option value="retreat">retreat 撤退</option>
+				</select>
+			</div>
+			<div class="row"><span>打击对象</span>
+				<select id="target"><option value="">（自动）</option></select>
+			</div>
+			<button id="btnQuick" class="wide">回防（全军撤回主城）</button>
+		</section>
+
+		<section class="card">
+			<h3>战场</h3>
+			<canvas id="map" width="300" height="210"></canvas>
+			<div class="legend"><i class="k-own"></i>我军 <i class="k-work"></i>村民 <i class="k-foe"></i>敌军 <i class="k-bld"></i>建筑</div>
+		</section>
+	</aside>
+
+	<!-- -------------------------------------------------- 中：态势 -->
+	<section id="center">
+		<div id="alarms" class="alarms"></div>
+		<div class="grid" id="stats"></div>
+		<div class="card">
+			<h3>编组 <small class="dim">军事内核当前怎么分队</small></h3>
+			<table id="groups"><thead><tr><th>编组</th><th>角色</th><th>任务</th><th>人数</th><th>距敌</th><th>射程</th><th>动作</th><th>残血</th><th>离家</th><th>目标</th></tr></thead><tbody></tbody></table>
+		</div>
+		<div class="card">
+			<h3>对手</h3>
+			<table id="players"><thead><tr><th>玩家</th><th>文明</th><th>人口</th><th>粮/木/石/金</th><th>科技</th><th>状态</th></tr></thead><tbody></tbody></table>
+		</div>
+		<div class="card">
+			<h3>内核参数 <small class="dim">读自游戏内真值，不是控制台记的副本</small></h3>
+			<div id="params" class="params"></div>
+		</div>
+		<div class="card">
+			<h3>内核日志</h3>
+			<div id="log" class="log"></div>
+		</div>
+	</section>
+
+	<!-- -------------------------------------------------- 右：对话 -->
+	<aside id="right">
+		<section class="card chat">
+			<h3>说人话下令 <small class="dim" id="engineTag"></small></h3>
+			<div id="chat" class="chat-body"></div>
+			<form id="chatForm">
+				<input id="chatText" placeholder="例：回防，攻击欲望 80%，先憋经济" autocomplete="off" />
+				<button type="submit">发送</button>
+			</form>
+			<div class="chips" id="chips"></div>
+		</section>
+	</aside>
+</main>
+
+<!-- -------------------------------------------------- 面板：训练 / 指令台 / 设置 -->
+<section id="pane-train" class="pane">
+	<div class="pane-inner">
+		<div class="card">
+			<h3>训练模式（自动生成对战 · 串行，一次一局）</h3>
+			<div class="form-grid">
+				<label>局数<input id="trTrials" type="number" value="4" min="1" max="60" /></label>
+				<label>每局仿真上限(s)<input id="trBudget" type="number" value="900" min="120" max="3600" /></label>
+				<label>速度倍率<input id="trSpeed" type="number" value="4" min="1" max="8" step="1" /></label>
+				<label>搜索方式<select id="trMode"><option value="random">随机撒点</option><option value="hill">围绕最优爬山</option><option value="baseline">默认参数基线（回归用，不改任何参数）</option></select></label>
+				<label>调什么<select id="trTarget"><option value="mixed">军事+经济（按胜负）</option><option value="econ">只调经济（军事不动，按运营曲线打分）</option></select></label>
+				<label>AI 难度<input id="trDiff" type="number" value="5" min="1" max="10" /></label>
+				<label>地图<input id="trMap" value="random/alpine_lakes" /></label>
+				<label class="chk"><input id="trForce" type="checkbox" /> 忽略"已有对局在跑"</label>
+			</div>
+			<div class="row btns">
+				<button id="trStart" class="primary">开始训练</button>
+				<button id="trStop" class="ghost">停止</button>
+				<button id="trApply" class="ghost">把最优参数下发当前对局</button>
+				<button id="trClear" class="ghost">清空成绩</button>
+			</div>
+			<div id="trStatus" class="mono small"></div>
+		</div>
+		<div class="card">
+			<h3>成绩排行</h3>
+			<table id="board"><thead><tr><th>#</th><th>分数</th><th>胜负</th><th>时长</th><th>人口</th><th>农/兵</th><th>击杀/阵亡</th><th>参数 / 经济标尺</th><th></th></tr></thead><tbody></tbody></table>
+		</div>
+	</div>
+</section>
+
+<section id="pane-cmd" class="pane">
+	<div class="pane-inner wide">
+		<div class="card">
+			<h3>逻辑指令台 <small class="dim">这份清单同时是大模型的工具表，共 <b id="intentCount">0</b> 条</small></h3>
+			<div class="row"><input id="cmdSearch" placeholder="搜索指令名 / 中文说明" /></div>
+			<div id="cmdList" class="cmd-list"></div>
+		</div>
+	</div>
+</section>
+
+<section id="pane-set" class="pane">
+	<div class="pane-inner">
+		<div class="card">
+			<h3>大模型接口（云端 API 或本地模型，OpenAI 兼容即可）</h3>
+			<div class="form-grid">
+				<label class="chk"><input id="llmOn" type="checkbox" /> 启用</label>
+				<label>baseUrl<input id="llmUrl" placeholder="http://127.0.0.1:11434/v1" /></label>
+				<label>model<input id="llmModel" placeholder="qwen2.5:14b-instruct" /></label>
+				<label>apiKey<input id="llmKey" type="password" placeholder="本地模型可留空" /></label>
+				<label>temperature<input id="llmTemp" type="number" step="0.05" min="0" max="1" /></label>
+				<label>maxTokens<input id="llmMax" type="number" min="128" max="4000" /></label>
+				<label>战略轮询间隔(s)<input id="sageInt" type="number" min="8" max="300" /></label>
+				<label>每轮最多指令<input id="sageMax" type="number" min="1" max="8" /></label>
+			</div>
+			<div class="row btns">
+				<button id="llmSave" class="primary">保存</button>
+				<button id="llmTest" class="ghost">连通性测试</button>
+				<span id="llmOut" class="small mono dim"></span>
+			</div>
+			<p class="hint">本地：Ollama 跑 <span class="mono">ollama serve</span> 后填 <span class="mono">http://127.0.0.1:11434/v1</span>；LM Studio 填它给的 OpenAI 端口。云端：填服务商的 base 与 key，走代理时系统代理已生效即可。</p>
+		</div>
+		<div class="card">
+			<h3>游戏与数据</h3>
+			<div class="form-grid">
+				<label>游戏根目录<input id="gameRoot" /></label>
+				<label>引擎相对路径<input id="gameExe" /></label>
+				<label>默认真实文明<input id="ourCiv" /></label>
+				<label>对手文明<input id="foeCiv" /></label>
+				<label>默认地图<input id="trMapDefault" /></label>
+			</div>
+			<div class="row btns">
+				<button id="gameSave" class="primary">保存</button>
+				<button id="gameStart" class="ghost">启动一局（需确认）</button>
+				<span id="gameOut" class="small mono dim"></span>
+			</div>
+			<h4>IPC 目录</h4>
+			<div id="roots" class="mono small"></div>
+			<h4>对局记录 <small class="dim">run-* 目录（只列最近 12 个）</small></h4>
+			<div id="runs" class="runs"></div>
+			<div class="row btns"><button id="runsPrune" class="ghost">清理 24 个以外的旧目录</button></div>
+		</div>
+	</div>
+</section>
+
+<script src="app.js"></script>
+</body>
+</html>

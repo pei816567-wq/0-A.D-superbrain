@@ -1,0 +1,41 @@
+{
+	"categories": {
+		"superbrain": {
+			"name": "Superbrain 副驾",
+			"desc": "外部 AI 副驾的接管与打法切换（仅单人对局生效）。",
+			"order": 90
+		}
+	},
+	"mapped_hotkeys": {
+		"superbrain": {
+			"superbrain.toggle": {
+				"name": "接管 / 交还军队",
+				"desc": "打开或关闭 AI 微操接管。"
+			},
+			"superbrain.field": {
+				"name": "打法：会战",
+				"desc": "近战吸伤害、远程站桩放风筝、骑兵绕侧后。"
+			},
+			"superbrain.hold": {
+				"name": "打法：守线",
+				"desc": "依托集结点与建筑防守，不追出战线。"
+			},
+			"superbrain.push": {
+				"name": "打法：推家",
+				"desc": "全军 attack-walk 推向目标点。"
+			},
+			"superbrain.harass": {
+				"name": "打法：骚扰",
+				"desc": "打经济、遇主力就撤。"
+			},
+			"superbrain.retreat": {
+				"name": "打法：全军撤退",
+				"desc": "脱离接触，向集结点/主城收缩。"
+			},
+			"superbrain.econ": {
+				"name": "经济副驾开关",
+				"desc": "让 AI 继续管农民、房舍、科技与出兵，或交还手动运营。"
+			}
+		}
+	}
+}

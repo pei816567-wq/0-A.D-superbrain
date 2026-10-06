@@ -1,0 +1,14 @@
+{
+	"name": "superbrain-console",
+	"version": "0.6.0",
+	"private": true,
+	"type": "module",
+	"description": "0 A.D. 副驾控制台：接管军事/经济、逻辑指令层、大模型中间层与批量训练",
+	"scripts": {
+		"start": "node server.mjs",
+		"test": "node test/console_test.mjs"
+	},
+	"engines": {
+		"node": ">=20"
+	}
+}
